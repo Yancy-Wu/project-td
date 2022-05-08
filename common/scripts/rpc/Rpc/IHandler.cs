@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpc.Impl.BinarySerializer
+namespace Rpc.Rpc
 {
-    internal class BinarySerializer
+    internal interface IHandler
     {
     }
 }
