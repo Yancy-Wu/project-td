@@ -1,13 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿/* IChannel.cs
+ * Abstract representation of a network connection.
+ */
 
-namespace Rpc.Rpc {
+namespace Rpc.Rpc
+{
     internal interface IChannel {
-        public void Read();
-        public void Send();
+        /// <summary>
+        /// It will be called when channel receive a complete packet msg from peer.
+        /// </summary>
+        /// <param name="msg">msg content</param>
+        public delegate void OnPeerMsg(byte[] msg);
+
+        /// <summary>
+        /// Send msg to channel peer.
+        /// </summary>
+        /// <param name="msg">msg content</param>
+        public void Send(byte[] msg);
+
+        /// <summary>
+        /// Close this channel.
+        /// </summary>
         public void Close();
     }
 }
