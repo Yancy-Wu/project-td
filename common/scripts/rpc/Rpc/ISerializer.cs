@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpc.Skeleton
+namespace Rpc.Rpc
 {
-    internal interface ISerializer
-    {
+    internal interface ISerializer {
+        public byte[] Serialize(params object[] args);
+        public object[] Deserialize(byte[] data);
     }
 }

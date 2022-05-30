@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿/* IHandler.cs
+ * rpc handler is responsible for net status change and rpc msg.
+ */
 
-namespace Rpc.Rpc {
+namespace Rpc.Rpc
+{
     internal interface IHandler {
         public void OnConnected();
 
         public void OnDisconnected();
 
-        public void OnError(RpcError error);
+        public void OnRpc(string callee, params object[] args);
     }
 }

@@ -5,6 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Rpc.Rpc {
-    public enum RpcError {
+    public class RpcError {
     }
 }

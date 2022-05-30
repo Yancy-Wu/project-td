@@ -9,7 +9,8 @@ namespace Rpc.Rpc
         /// It will be called when channel receive a complete packet msg from peer.
         /// </summary>
         /// <param name="msg">msg content</param>
-        public delegate void OnPeerMsg(byte[] msg);
+        public delegate void PeerMsgHandler(byte[] msg);
+        public event PeerMsgHandler PeerMsg;
 
         /// <summary>
         /// Send msg to channel peer.
