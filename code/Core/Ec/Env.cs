@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpc.Skeleton
+namespace Game.Core.Ec
 {
-    internal interface IListener
+    internal class Env
     {
+        public MetaManager metaManager;
     }
 }

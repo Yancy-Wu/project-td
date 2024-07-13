@@ -4,7 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpc.Rpc {
-    public class RpcError {
+namespace Game.Core.Ec
+{
+    public class EntityFactory
+    {
+        public Entity? CreateEntityFromCompDict()
     }
 }

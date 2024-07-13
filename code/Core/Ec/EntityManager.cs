@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Rpc.Impl.TcpRpc
+namespace Game.Core.Ec
 {
-    internal class TcpListener
+    internal class EntityManager
     {
     }
 }
