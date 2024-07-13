@@ -1,25 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 
 namespace Game.Core.Ec
 {
     class MetaManager
     {
-        static MetaManager inst = new MetaManager();
-        private Dictionary<string, int> CompNameToType = new Dictionary<string, int>();
-        public static MetaManager GetInst() { return inst; }
-        public void AddComp<T>(int compType) where T: IComp
+        private readonly Dictionary<Type, int> _compClsToType = new();
+        private readonly Dictionary<Type, CompMeta> _compClsToCompMeta = new();
+
+        public void AddComp<T>() where T: IComp
         {
-            string typeName = typeof(T).Name;
-            this.CompNameToType[typeName] = compType;
+            Type type = typeof(T);
+            BindingFlags flag = BindingFlags.Static;
+            FieldInfo compTypeField = type.GetField("CompType", flag)!;
+            FieldInfo compMetaField = type.GetField("Meta", flag)!;
+            int compType = (int)compTypeField.GetValue(null)!;
+            CompMeta meta = (CompMeta)compMetaField.GetValue(null)!;
+            _compClsToType[type] = compType;
+            _compClsToCompMeta[type] = meta;
         }
+
         public int GetCompType<T>() where T : IComp
         {
-            string typeName = typeof(T).Name;
-            return this.CompNameToType[typeName];
+            return _compClsToType[typeof(T)];
+        }
+
+        public CompMeta GetCompMeta<T>() where T : IComp
+        {
+            return _compClsToCompMeta[typeof(T)];
         }
     }
 }

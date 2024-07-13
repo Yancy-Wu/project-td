@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Numerics;
 using System.Reflection;
 
 namespace Game.Core.Ec
@@ -6,6 +7,7 @@ namespace Game.Core.Ec
     enum EntityState
     {
         INIT,
+        ATTACHED,
         RUNNING,
         DESTROYED
     }
@@ -19,10 +21,22 @@ namespace Game.Core.Ec
         private EntityState _state = EntityState.INIT;
         public string? Id { get { return _id; } }
 
-        internal void AttachToEnv(Env env, string id)
+        private int[] getDismissedCompDepend(CompMeta compMeta)
         {
+            Vector<int> ret;
+            foreach(int compType in compMeta.DependCompTypes)
+            {
+                if (!_comps.ContainsKey(compType)) ret.
+            }
+        }
+
+        internal void AttachToEnv(Env env, string id, bool addToManager = true)
+        {
+            Debug.Assert(_state == EntityState.INIT && _env is not null, "AttachToEnv can only apply to INIT entity, and cur _env must null");
             _env = env;
             _id = id;
+            if (addToManager) env.entityManager.AddEntity(this);
+            _state = EntityState.ATTACHED;
         }
 
         internal void DispatchCompMethod(string funcName, bool activeOnly, params object?[]? param)
@@ -36,14 +50,19 @@ namespace Game.Core.Ec
 
         internal void RunEntity()
         {
-            Debug.Assert(_state == EntityState.INIT, "RunEntity can only call when entity init!");
+            Debug.Assert(_state == EntityState.ATTACHED, "RunEntity can only call when entity attached!");
             _state = EntityState.RUNNING;
             DispatchCompMethod("OnActive", true);
         }
 
-        internal void Destroy()
+        internal void Destroy(bool callManager = true)
         {
             Debug.Assert(_state != EntityState.DESTROYED, "Destroy can only call when entity not destroyed!");
+            if (callManager && _env!.entityManager is not null)
+            {
+                _env!.entityManager.DestroyEntity(this);
+                return;
+            }
             EntityState curState = _state;
             _state = EntityState.DESTROYED;
             if (curState == EntityState.RUNNING)
@@ -57,11 +76,13 @@ namespace Game.Core.Ec
             }
             DispatchCompMethod("Destroy", false);
             _comps.Clear();
+            _env = null;
+            _id = null;
         }
 
         internal void AddComp<T>(T comp) where T : class, IComp
         {
-            Debug.Assert(_state == EntityState.INIT, "Can only add entity comp before entity ready!");
+            Debug.Assert(_state == EntityState.INIT, "Can only add entity comp before entity attached!");
             int compType = _env!.metaManager.GetCompType<T>();
             Debug.Assert(!_comps.ContainsKey(compType), $"Add comp error: comp type {compType} has existed");
             _comps[compType] = comp;
