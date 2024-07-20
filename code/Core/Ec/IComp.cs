@@ -1,4 +1,6 @@
-﻿namespace Game.Core.Ec {
+﻿using Game.Core.Meta;
+
+namespace Game.Core.Ec {
     public interface IComp {
         static readonly int CompType;
         static readonly CompMeta Meta;
@@ -6,14 +8,6 @@
         void OnActive();
         void OnInactive(bool willDestroy = false);
         void Destroy();
-    }
-
-    public struct CompMeta {
-        public int[] DependCompTypes;
-
-        public CompMeta(int[] dependCompTypes) {
-            DependCompTypes = dependCompTypes;
-        }
     }
 
     public class RuntimeCompInfo {

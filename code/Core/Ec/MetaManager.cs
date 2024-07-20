@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using Game.Core.Meta;
+using System.Reflection;
 
 namespace Game.Core.Ec {
     public class MetaManager {

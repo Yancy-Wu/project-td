@@ -4,7 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Game.Core.Serializer {
-    internal interface ISerializableObject {
+namespace Game.Core.Meta {
+    internal class GameProperty {
+
     }
 }
