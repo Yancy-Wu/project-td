@@ -17,7 +17,7 @@ namespace Game.Core.Meta {
             return _compClsToMeta[type];
         }
 
-        public void AddMetaData(Type type) {
+        internal void AddMetaData(Type type) {
             Debug.Assert(type.IsSubclassOf(typeof(ISerializable)), $"Can only add {nameof(ISerializable)}, not {type.Name}");
             TypeMeta meta = new();
             _compClsToMeta.Add(type, meta);
@@ -30,6 +30,12 @@ namespace Game.Core.Meta {
         }
 
         private void _appendSerializeMeta(Type type, TypeMeta meta) {
+            foreach(PropertyInfo property in type.GetProperties()) {
+                GamePropertyAttribute? attr = property.GetCustomAttribute<GamePropertyAttribute>();
+                if (attr is null) continue;
+                IPropertySerializer serializer = SerializeUtils.CreatePropertySerializer(type, property.Name);
+                meta.SerializeProperties.Add(serializer);
+            }
         }
 
         private void _checkAndAppendCompMeta(Type type, TypeMeta meta) {
@@ -41,6 +47,19 @@ namespace Game.Core.Meta {
             CompMeta compMeta = (CompMeta)compMetaField.GetValue(null)!;
             meta.CompType = compType;
             meta.CompMeta = compMeta;
+        }
+
+        internal void ScanNamespaceTypes(string iCompNamespace) {
+            Assembly curAssembly = this.GetType().Assembly;
+            Module[] mods = curAssembly.GetModules();
+            foreach (Module md in mods) {
+                foreach (Type type in md.GetTypes()) {
+                    if (type.Namespace != iCompNamespace) continue;
+                    if (!type.IsSubclassOf(typeof(ISerializable))) continue;
+                    Console.WriteLine("MetaManager Find Type: {0}", type.Name);
+                    AddMetaData(type);
+                }
+            }
         }
     }
 }

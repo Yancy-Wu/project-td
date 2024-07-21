@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Game.Core.Serializer {
+namespace Game.Core.Serializer.impl {
     internal class PropertySerializer<T, VT> : IPropertySerializer {
         public delegate VT PropertyGetDelegate(T obj);
         public delegate void PropertySetDelegate(T obj, VT value);

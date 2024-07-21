@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Game.Core.Meta {
-    internal class GameProperty {
+    [AttributeUsage(AttributeTargets.Property)]
+    public class GamePropertyAttribute: Attribute {
 
     }
 }

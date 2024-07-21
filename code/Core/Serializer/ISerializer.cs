@@ -3,8 +3,8 @@
 namespace Game.Core.Serializer {
 
     public interface ISerializable {
-        public void Serialize(SerializeContext ctx, MemoryStream stream);
-        public void Deserialize(SerializeContext ctx, MemoryStream stream);
+        public void Serialize(SerializeContext ctx, MemoryStream stream, TypeMeta meta);
+        public void Deserialize(SerializeContext ctx, MemoryStream stream, TypeMeta meta);
     }
 
     public interface IPropertySerializer {

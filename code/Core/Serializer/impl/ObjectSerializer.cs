@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Game.Core.Serializer {
+namespace Game.Core.Serializer.impl {
     internal struct SerializeTypeHeadData {
         public int TypeNameLength;
         public int SerializeDataLength;
@@ -18,7 +18,7 @@ namespace Game.Core.Serializer {
             var array = GC.AllocateUninitializedArray<byte>(headSize);
             stream.Write(array);
             stream.Write(name);
-            obj.Serialize(ctx, stream);
+            obj.Serialize(ctx, stream, meta);
             long endPos = stream.Position;
             fixed (byte* p = &stream.GetBuffer()[0]) {
                 SerializeTypeHeadData* ptr = (SerializeTypeHeadData*)(p + startPos);
@@ -38,8 +38,9 @@ namespace Game.Core.Serializer {
             stream.Read(nameBytes);
             string name = Encoding.ASCII.GetString(nameBytes);
             Type type = ctx.MetaManager.GetTypeByName(name);
+            TypeMeta meta = ctx.MetaManager.GetTypeMeta(type);
             ISerializable obj = (ISerializable)Activator.CreateInstance(type)!;
-            obj.Deserialize(ctx, stream);
+            obj.Deserialize(ctx, stream, meta);
             return obj;
         }
     }
