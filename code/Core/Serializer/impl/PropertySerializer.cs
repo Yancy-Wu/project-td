@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Game.Core.Serializer.impl {
+namespace Game.Core.Serializer.Impl {
     internal class PropertySerializer<T, VT> : IPropertySerializer {
         public delegate VT PropertyGetDelegate(T obj);
         public delegate void PropertySetDelegate(T obj, VT value);
@@ -44,6 +44,7 @@ namespace Game.Core.Serializer.impl {
         }
 
         public PropertySerializer(string propName) {
+            Debug.Assert(!typeof(VT).IsGenericType, $"Not Support property in Generic Type.");
             PropertyInfo property = typeof(T).GetProperty(propName)!;
             ParameterExpression thisPara = Expression.Parameter(typeof(T));
             Expression callGet = Expression.Call(property.GetGetMethod()!);
@@ -51,6 +52,7 @@ namespace Game.Core.Serializer.impl {
             ParameterExpression valuePara = Expression.Parameter(typeof(VT));
             Expression callSet = Expression.Call(property.GetSetMethod()!);
             this.SetDelegate = Expression.Lambda<PropertySetDelegate>(callSet, thisPara, valuePara).Compile();
+            Debug.Assert(!typeof(T).IsValueType || !RuntimeHelpers.IsReferenceOrContainsReferences<VT>(), "Value Type Cannot Contain Ref Field!");
         }
     }
 }

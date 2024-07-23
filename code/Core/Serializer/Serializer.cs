@@ -1,4 +1,4 @@
-﻿using Game.Core.Serializer.impl;
+﻿using Game.Core.Serializer.Impl;
 using System.Diagnostics;
 
 namespace Game.Core.Serializer {
