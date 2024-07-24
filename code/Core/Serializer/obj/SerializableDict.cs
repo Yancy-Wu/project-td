@@ -1,7 +1,6 @@
 ﻿using Game.Core.Meta;
 using Game.Core.Serializer.Impl;
 using System.Diagnostics;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 
 namespace Game.Core.Serializer.Obj {

@@ -1,7 +1,6 @@
 ﻿using Game.Core.Meta;
 using Game.Core.Serializer.Impl;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Game.Core.Serializer.Obj {
@@ -39,8 +38,9 @@ namespace Game.Core.Serializer.Obj {
             // 值类型直接批量反序列化
             int count = SerializeUtils.ReadValueTypeFromStream<int>(stream);
             Type type = typeof(T);
-            Items.Capacity = count;
+            Items.EnsureCapacity(count);
             if (type.IsValueType) {
+                Items.AddRange(GC.AllocateUninitializedArray<T>(count));
                 SerializeUtils.ReadStreamToSpan(stream, CollectionsMarshal.AsSpan(Items));
                 return;
             }
