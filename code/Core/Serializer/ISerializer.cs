@@ -13,6 +13,11 @@ namespace Game.Core.Serializer {
     }
 
     public struct SerializeContext {
-        public TypeMetaManager MetaManager { get; set; }
+        public TypeMetaManager MetaManager;
+        public byte[] CacheBuffer128B = new byte[128];
+
+        public SerializeContext(TypeMetaManager metaManager) {
+            MetaManager = metaManager;
+        }
     }
 }

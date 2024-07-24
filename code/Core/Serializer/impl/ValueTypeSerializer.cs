@@ -1,23 +1,9 @@
 ﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace Game.Core.Serializer.Impl {
     internal static class ValueTypeSerializer {
-        private static readonly Func<MemoryStream, object>[] PRIMITIVE_READ_FUNCS = {
-            _readPrimitiveValue<int>,
-            _readPrimitiveValue<float>,
-            _readPrimitiveValue<bool>,
-            _readPrimitiveValue<double>,
-            _readPrimitiveValue<long>,
-        };
         private static readonly int BUFFER_LEN = 32;
         private static readonly byte[] FixedBuffer = new byte[BUFFER_LEN];
-
-        private static object _readPrimitiveValue<T>(MemoryStream stream) {
-            int sz = Unsafe.SizeOf<T>();
-            stream.Read(FixedBuffer, 0, sz);
-            return Unsafe.ReadUnaligned<T>(ref FixedBuffer[0])!;
-        }
 
         public static void Serialize(SerializeContext ctx, MemoryStream stream, ValueType obj) {
 #if DEBUG
@@ -25,6 +11,7 @@ namespace Game.Core.Serializer.Impl {
             Debug.Assert(!type.IsEnum, "Serializer not support Enum type...");
             Debug.Assert(type.IsPrimitive, "Serializer not support Custom struct type, please use ISerializable impl instead.");
 #endif
+            // 只记录几个常用的类型，其他的就不支持了.
             byte typeInt = 0;
             byte[]? val = null;
             if (obj is int v1) { typeInt = 1; val = BitConverter.GetBytes(v1); }
@@ -38,9 +25,16 @@ namespace Game.Core.Serializer.Impl {
             stream.Write(val!);
         }
 
-        public static object Deserialize(SerializeContext ctx, MemoryStream stream) {
+        public static object Deserialize(SerializeContext _, MemoryStream stream) {
             byte typeInt = (byte)stream.ReadByte();
-            return PRIMITIVE_READ_FUNCS[typeInt].Invoke(stream);
+            return typeInt switch {
+                1 => SerializeUtils.ReadValueTypeFromStream<int>(stream),
+                2 => SerializeUtils.ReadValueTypeFromStream<float>(stream),
+                3 => SerializeUtils.ReadValueTypeFromStream<bool>(stream),
+                4 => SerializeUtils.ReadValueTypeFromStream<double>(stream),
+                5 => SerializeUtils.ReadValueTypeFromStream<long>(stream),
+                _ => throw new NotImplementedException($"unsupport value type: {typeInt}")
+            };
         }
     }
 }
