@@ -5,6 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Game.Core.Collection {
-    internal class Dict {
+    internal class ObservableDict {
     }
 }

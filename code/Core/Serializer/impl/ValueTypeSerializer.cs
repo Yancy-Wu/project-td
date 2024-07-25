@@ -2,9 +2,6 @@
 
 namespace Game.Core.Serializer.Impl {
     internal static class ValueTypeSerializer {
-        private static readonly int BUFFER_LEN = 32;
-        private static readonly byte[] FixedBuffer = new byte[BUFFER_LEN];
-
         public static void Serialize(SerializeContext ctx, MemoryStream stream, ValueType obj) {
 #if DEBUG
             Type type = obj.GetType();

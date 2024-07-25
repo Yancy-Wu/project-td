@@ -5,6 +5,12 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MSTest" Version="3.2.0"/>
+    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="17.10.1"/>
+  </ItemGroup>
 
 </Project>

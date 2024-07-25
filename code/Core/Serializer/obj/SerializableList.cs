@@ -4,11 +4,11 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace Game.Core.Serializer.Obj {
-    public interface ISerializableList<T> : ISerializable where T: new() {
-        internal List<T> Items { get; }
-        internal bool IsPolyItem { get; }
+    public class SerializableList<T> : ISerializable {
+        internal List<T> Items { get; } = new List<T>();
+        internal bool IsPolyItem { get; } = false;
 
-        public new void Serialize(SerializeContext ctx, MemoryStream stream, TypeMeta meta) {
+        public void Serialize(SerializeContext ctx, MemoryStream stream, TypeMeta meta) {
             // 先序列化带属性标记的.
             foreach (var prop in meta.SerializeProperties!) prop.Serialize(ctx, stream, this);
 
@@ -18,6 +18,11 @@ namespace Game.Core.Serializer.Obj {
             Type type = typeof(T);
             if (type.IsValueType) {
                 SerializeUtils.WriteSpanToStream(stream, CollectionsMarshal.AsSpan(Items));
+                return;
+            }
+            // 对于存储的是string，特殊处理一下.
+            if (typeof(T) == typeof(string)) {
+                foreach (T v in Items) StringSerializer.Serialize(ctx, stream, (v as string)!);
                 return;
             }
             // 对于引用类型，不需要多态特性的话，直接依次序列化数据就好.
@@ -31,7 +36,7 @@ namespace Game.Core.Serializer.Obj {
             foreach (T v in Items) ObjectSerializer.Serialize(ctx, stream, (ISerializable)v!);
         }
 
-        public new void Deserialize(SerializeContext ctx, MemoryStream stream, TypeMeta meta) {
+        public void Deserialize(SerializeContext ctx, MemoryStream stream, TypeMeta meta) {
             // 先反序列化带属性标记的.
             foreach (var prop in meta.SerializeProperties!) prop.Deserialize(ctx, stream, this);
 
@@ -44,12 +49,17 @@ namespace Game.Core.Serializer.Obj {
                 SerializeUtils.ReadStreamToSpan(stream, CollectionsMarshal.AsSpan(Items));
                 return;
             }
+            // 对于存储的是string，特殊处理一下.
+            if (typeof(T) == typeof(string)) {
+                for (int i = 0; i != count; ++i) Items.Add((T)(object)StringSerializer.Deserialize(ctx, stream));
+                return;
+            }
             // 对于引用类型，不需要多态特性的依次创建然后反序列化.
             Debug.Assert(type.IsSubclassOf(typeof(ISerializable)), $"Can only deserialize {nameof(ISerializable)} property or ValueType property!");
             if (!IsPolyItem) {
                 TypeMeta tMeta = ctx.MetaManager.GetTypeMeta(type);
                 for (int i = 0; i != count; ++i) {
-                    ISerializable obj = (ISerializable)new T();
+                    ISerializable obj = (ISerializable)Activator.CreateInstance(typeof(T))!;
                     obj.Deserialize(ctx, stream, tMeta);
                     Items.Add((T)obj);
                 }
