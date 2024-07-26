@@ -1,10 +1,16 @@
 ﻿using Game.Core.Serializer.Impl;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace Game.Core.Serializer {
     public static class SerializeUtils {
+
+        /// <summary>
+        /// 针对类型type上指定的属性名称，构造其属性序列化器.
+        /// </summary>
+        /// <param name="objType">要构造的类型</param>
+        /// <param name="propName">要构造的属性名称</param>
+        /// <returns>属性序列化实现</returns>
         public static IPropertySerializer CreatePropertySerializer(Type objType, string propName) {
             PropertyInfo property = objType.GetProperty(propName)!;
             Type vt = property.GetGetMethod()!.ReturnType;

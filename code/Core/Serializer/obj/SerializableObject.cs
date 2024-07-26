@@ -1,6 +1,10 @@
 ﻿using Game.Core.Meta;
 
 namespace Game.Core.Serializer.Obj {
+
+    /// <summary>
+    /// 可序列化对象的实现.
+    /// </summary>
     public class SerializableObject : ISerializable {
 
         public void Serialize(SerializeContext ctx, MemoryStream stream, TypeMeta meta) {

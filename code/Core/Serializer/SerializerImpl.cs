@@ -59,7 +59,13 @@ namespace Game.Core.Serializer {
             return ObjectSerializer.Deserialize(ctx, stream);
         }
 
-        public static void Serialize<T>(SerializeContext ctx, MemoryStream stream, T obj) {
+        /// <summary>
+        /// 泛型序列化实现，是序列化object的强类型版本，由于不写入类型信息，效率会更高一些
+        /// </summary>
+        /// <param name="ctx">序列化上下文数据</param>
+        /// <param name="stream">序列化写入的内存数据流</param>
+        /// <param name="obj">需要序列化的对象</param>
+        internal static void Serialize<T>(SerializeContext ctx, MemoryStream stream, T obj) {
             // 返回值类型的情况下，直接序列化.
             Type type = typeof(T);
             if (type.IsValueType) {
@@ -77,7 +83,12 @@ namespace Game.Core.Serializer {
             else ((ISerializable)obj!).Serialize(ctx, stream, ctx.MetaManager.GetTypeMeta(type));
         }
 
-        public static T Deserialize<T>(SerializeContext ctx, MemoryStream stream) {
+        /// <summary>
+        /// 泛型反序列化实现，是序列化object的强类型版本，效率会更高一些.
+        /// </summary>
+        /// <param name="ctx">序列化上下文数据</param>
+        /// <param name="stream">反序列化读取的内存数据流</param>
+        internal static T Deserialize<T>(SerializeContext ctx, MemoryStream stream) {
             // 返回值类型的情况下，直接反序列化, 大小从类型中读取.
             Type type = typeof(T);
             if (type.IsValueType) {

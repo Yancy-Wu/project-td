@@ -4,6 +4,10 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace Game.Core.Serializer.Obj {
+
+    /// <summary>
+    /// 可序列化列表的实现.
+    /// </summary>
     public class SerializableList<T> : ISerializable {
         internal List<T> Items { get; } = new List<T>();
 

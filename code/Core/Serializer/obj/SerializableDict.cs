@@ -4,6 +4,10 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Game.Core.Serializer.Obj {
+
+    /// <summary>
+    /// 可序列化字典的实现.
+    /// </summary>
     public class SerializableDict<TK, TV> : ISerializable where TK: notnull {
         internal Dictionary<TK, TV> Items { get; } = new Dictionary<TK, TV>();
 

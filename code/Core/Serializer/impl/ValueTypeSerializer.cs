@@ -1,6 +1,10 @@
 ﻿using System.Diagnostics;
 
 namespace Game.Core.Serializer.Impl {
+
+    /// <summary>
+    /// Primitive值类型序列化实现[不包括自定义struct].
+    /// </summary>
     internal static class ValueTypeSerializer {
         public static void Serialize(SerializeContext ctx, MemoryStream stream, ValueType obj) {
 #if DEBUG
@@ -23,6 +27,7 @@ namespace Game.Core.Serializer.Impl {
         }
 
         public static object Deserialize(SerializeContext _, MemoryStream stream) {
+            // 按存储类型取出并反序列化之.
             byte typeInt = (byte)stream.ReadByte();
             return typeInt switch {
                 1 => SerializeUtils.ReadValueTypeFromStream<int>(stream),

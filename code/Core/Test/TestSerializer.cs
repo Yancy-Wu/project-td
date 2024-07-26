@@ -2,7 +2,6 @@
 using Game.Core.Serializer;
 using Game.Core.Serializer.Obj;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Text.Json;
 
 namespace Game.Core.Test {
 

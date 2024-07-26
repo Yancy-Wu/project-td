@@ -4,6 +4,10 @@ using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Game.Core.Serializer.Impl {
+
+    /// <summary>
+    /// 字符串序列化的实现，部分参照了MemoryPack的实现方式.
+    /// </summary>
     internal static class StringSerializer {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
