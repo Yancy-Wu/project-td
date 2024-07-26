@@ -34,6 +34,7 @@ namespace Game.Core.Serializer {
         /// </summary>
         /// <param name="stream">原始数据流</param>
         /// <param name="mem">存储的内存地址(托管或者非托管的)</param>
+#pragma warning disable CS8500
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void ReadStreamToSpan<T>(MemoryStream stream, Span<T> mem) {
             int size = Unsafe.SizeOf<T>();
@@ -42,6 +43,7 @@ namespace Game.Core.Serializer {
                 stream.Read(byteSpan);
             }
         }
+#pragma warning restore
 
         /// <summary>
         /// 写入迭代器数据到stream数据中, 仅支持值类型迭代器, 流指针会后移
@@ -69,6 +71,7 @@ namespace Game.Core.Serializer {
         /// </summary>
         /// <param name="stream">原始数据流</param>
         /// <param name="span">T类型内存数据</param>
+#pragma warning disable CS8500
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe void WriteSpanToStream<T>(MemoryStream stream, Span<T> span) {
             int size = Unsafe.SizeOf<T>();
@@ -77,6 +80,7 @@ namespace Game.Core.Serializer {
                 stream.Write(byteSpan);
             }
         }
+#pragma warning restore
 
         /// <summary>
         /// 从stream数据流中读取一个T类型数据，仅支持值类型, 流指针会后移
