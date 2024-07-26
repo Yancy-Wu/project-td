@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 namespace Game.Core.Serializer.Obj {
     public class SerializableDict<TK, TV> : ISerializable where TK: notnull {
         internal Dictionary<TK, TV> Items { get; } = new Dictionary<TK, TV>();
-        internal bool IsPolyItem { get; } = false;
 
         public void Serialize(SerializeContext ctx, MemoryStream stream, TypeMeta meta) {
             // 先序列化带属性标记的.
@@ -29,13 +28,13 @@ namespace Game.Core.Serializer.Obj {
                 return;
             }
             // 对于存储的是string，特殊处理一下.
-            if (typeof(TV) == typeof(string)) {
+            if (vType == typeof(string)) {
                 foreach (TV v in Items.Values) StringSerializer.Serialize(ctx, stream, (v as string)!);
                 return;
             }
             // 对于引用类型，不需要多态特性的话，直接依次序列化数据就好.
-            Debug.Assert(vType.IsSubclassOf(typeof(ISerializable)), $"Can only serialize {nameof(ISerializable)} value or ValueType value!");
-            if (!IsPolyItem) {
+            Debug.Assert(vType.IsAssignableTo(typeof(ISerializable)), $"Can only serialize {nameof(ISerializable)} value or ValueType value!");
+            if (!vType.IsInterface && !vType.IsAbstract) {
                 TypeMeta tMeta = ctx.MetaManager.GetTypeMeta(vType);
                 foreach (TV v in Items.Values) ((ISerializable)v!).Serialize(ctx, stream, tMeta);
                 return;
@@ -70,16 +69,16 @@ namespace Game.Core.Serializer.Obj {
                 return;
             }
             // 对于存储的是string，特殊处理一下.
-            if (typeof(TV) == typeof(string)) {
+            if (type == typeof(string)) {
                 for (int i = 0; i != count; ++i) Items[keys[i]] = (TV)(object)StringSerializer.Deserialize(ctx, stream);
                 return;
             }
             // 对于引用类型，不需要多态特性的依次创建然后反序列化.
-            Debug.Assert(type.IsSubclassOf(typeof(ISerializable)), $"Can only deserialize {nameof(ISerializable)} property or ValueType property!");
-            if (!IsPolyItem) {
+            Debug.Assert(type.IsAssignableTo(typeof(ISerializable)), $"Can only deserialize {nameof(ISerializable)} property or ValueType property!");
+            if (!type.IsInterface && !type.IsAbstract) {
                 TypeMeta tMeta = ctx.MetaManager.GetTypeMeta(type);
                 for (int i = 0; i != count; ++i) {
-                    ISerializable obj = (ISerializable)Activator.CreateInstance(typeof(TV))!;
+                    ISerializable obj = (ISerializable)Activator.CreateInstance(type)!;
                     obj.Deserialize(ctx, stream, tMeta);
                     Items[keys[i]] = (TV)obj;
                 }

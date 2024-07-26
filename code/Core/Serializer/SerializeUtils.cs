@@ -1,6 +1,7 @@
 ﻿using Game.Core.Serializer.Impl;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Game.Core.Serializer {
     public static class SerializeUtils {
@@ -60,6 +61,7 @@ namespace Game.Core.Serializer {
                     cur += size;
                 }
             }
+            stream.Position += size * count;
         }
 
         /// <summary>
@@ -83,22 +85,34 @@ namespace Game.Core.Serializer {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe T ReadValueTypeFromStream<T>(MemoryStream stream) {
             int sz = Unsafe.SizeOf<T>();
-            fixed (byte* p = &stream.GetBuffer()[stream.Position]) {
-                stream.Position += sz;
-                return Unsafe.ReadUnaligned<T>(ref *p);
-            }
+            long pos = stream.Position;
+            stream.Position += sz;
+            return Unsafe.ReadUnaligned<T>(ref stream.GetBuffer()[pos]);
         }
 
         /// <summary>
         /// 写入一个T类型数据到stream，仅支持值类型, 流指针会后移
         /// </summary>
         /// <param name="stream">原始数据流</param>
+        /// <param name="val">写入数据</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void WriteValueTypeToStream<T>(MemoryStream stream, T val) {
             int sz = Unsafe.SizeOf<T>();
             long pos = stream.Position;
             stream.SetLength(stream.Length + sz);
             Unsafe.WriteUnaligned(ref stream.GetBuffer()[pos], val);
+            stream.Position += sz;
+        }
+
+        /// <summary>
+        /// 预分配一个T类型数据到stream，仅支持值类型, 流指针会后移
+        /// </summary>
+        /// <param name="stream">原始数据流</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AllocStreamData<T>(MemoryStream stream) {
+            int sz = Unsafe.SizeOf<T>();
+            stream.SetLength(stream.Length + sz);
+            stream.Position += sz;
         }
 
         /// <summary>

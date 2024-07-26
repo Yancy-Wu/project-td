@@ -10,23 +10,23 @@ using System.Threading.Tasks;
 
 namespace Game.Core.Meta {
     public class TypeMetaManager {
-        private readonly Dictionary<Type, TypeMeta> _compClsToMeta = new();
-        private readonly Dictionary<string, Type> _compNameToCompCls = new();
+        private readonly Dictionary<Type, TypeMeta> _clsToMeta = new();
+        private readonly Dictionary<string, Type> _nameToCls = new();
 
         public TypeMeta GetTypeMeta(Type type) {
-            return _compClsToMeta[type];
+            return _clsToMeta[type];
         }
 
         internal void AddMetaData(Type type) {
-            Debug.Assert(type.IsSubclassOf(typeof(ISerializable)), $"Can only add {nameof(ISerializable)}, not {type.Name}");
             TypeMeta meta = new();
-            _compClsToMeta.Add(type, meta);
+            _clsToMeta.Add(type, meta);
+            _nameToCls.Add(type.Name, type);
             _appendSerializeMeta(type, meta);
             _checkAndAppendCompMeta(type, meta);
         }
 
         public Type GetTypeByName(string name) {
-            return _compNameToCompCls[name];
+            return _nameToCls[name];
         }
 
         private void _appendSerializeMeta(Type type, TypeMeta meta) {
@@ -55,7 +55,7 @@ namespace Game.Core.Meta {
             foreach (Module md in mods) {
                 foreach (Type type in md.GetTypes()) {
                     if (type.Namespace != iCompNamespace) continue;
-                    if (!type.IsSubclassOf(typeof(ISerializable))) continue;
+                    if (!type.IsAssignableTo(typeof(ISerializable))) continue;
                     Console.WriteLine("MetaManager Find Type: {0}", type.Name);
                     AddMetaData(type);
                 }

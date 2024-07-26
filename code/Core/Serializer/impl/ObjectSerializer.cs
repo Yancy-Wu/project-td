@@ -32,8 +32,7 @@ namespace Game.Core.Serializer.Impl {
             TypeMeta meta = ctx.MetaManager.GetTypeMeta(type);
 
             // 直接分配头部的空间.
-            int headSize = Unsafe.SizeOf<SerializeTypeHeadData>();
-            stream.SetLength(stream.Length + headSize);
+            SerializeUtils.AllocStreamData<SerializeTypeHeadData>(stream);
             // 写入原始类型数据.
             byte[] typeName = Encoding.ASCII.GetBytes(type.Name);
             stream.Write(typeName);

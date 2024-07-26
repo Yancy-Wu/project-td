@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 namespace Game.Core.Serializer.Obj {
     public class SerializableList<T> : ISerializable {
         internal List<T> Items { get; } = new List<T>();
-        internal bool IsPolyItem { get; } = false;
 
         public void Serialize(SerializeContext ctx, MemoryStream stream, TypeMeta meta) {
             // 先序列化带属性标记的.
@@ -21,13 +20,13 @@ namespace Game.Core.Serializer.Obj {
                 return;
             }
             // 对于存储的是string，特殊处理一下.
-            if (typeof(T) == typeof(string)) {
+            if (type == typeof(string)) {
                 foreach (T v in Items) StringSerializer.Serialize(ctx, stream, (v as string)!);
                 return;
             }
             // 对于引用类型，不需要多态特性的话，直接依次序列化数据就好.
-            Debug.Assert(type.IsSubclassOf(typeof(ISerializable)), $"Can only serialize {nameof(ISerializable)} property or ValueType property!");
-            if (!IsPolyItem) {
+            Debug.Assert(type.IsAssignableTo(typeof(ISerializable)), $"Can only serialize {nameof(ISerializable)} property or ValueType property!");
+            if (!type.IsInterface && !type.IsAbstract) {
                 TypeMeta tMeta = ctx.MetaManager.GetTypeMeta(type);
                 foreach (T v in Items) ((ISerializable)v!).Serialize(ctx, stream, tMeta);
                 return;
@@ -50,13 +49,13 @@ namespace Game.Core.Serializer.Obj {
                 return;
             }
             // 对于存储的是string，特殊处理一下.
-            if (typeof(T) == typeof(string)) {
+            if (type == typeof(string)) {
                 for (int i = 0; i != count; ++i) Items.Add((T)(object)StringSerializer.Deserialize(ctx, stream));
                 return;
             }
             // 对于引用类型，不需要多态特性的依次创建然后反序列化.
-            Debug.Assert(type.IsSubclassOf(typeof(ISerializable)), $"Can only deserialize {nameof(ISerializable)} property or ValueType property!");
-            if (!IsPolyItem) {
+            Debug.Assert(type.IsAssignableTo(typeof(ISerializable)), $"Can only deserialize {nameof(ISerializable)} property or ValueType property!");
+            if (!type.IsInterface && !type.IsAbstract) {
                 TypeMeta tMeta = ctx.MetaManager.GetTypeMeta(type);
                 for (int i = 0; i != count; ++i) {
                     ISerializable obj = (ISerializable)Activator.CreateInstance(typeof(T))!;
