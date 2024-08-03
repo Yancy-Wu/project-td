@@ -90,7 +90,7 @@ namespace Game.Core.Test {
 
     class CustomObject: CustomObjectD {
         [GameProperty]
-        public ITestInterface si { get; set; }
+        public ITestInterface? si { get; set; }
     }
 
     [TestClass]

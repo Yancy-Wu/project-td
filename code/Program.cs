@@ -5,4 +5,3 @@ using Game.Core.Test;
 
 TestSerializer test = new TestSerializer();
 test.TestPerformance();
-
