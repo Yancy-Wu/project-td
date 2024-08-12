@@ -17,7 +17,7 @@
                 if (curListenPart == curPropPart) continue;
 
                 // 通配符匹配成功并记录index.
-                if (curListenPart[0] == IPropTreeNode.PROP_SEP) {
+                if (curListenPart[0] == PropHandlerData.PROP_SEP) {
                     propEvent.MatchedIndex = curPropPart;
                     continue;
                 }

@@ -1,10 +1,9 @@
-﻿using Game.Core.Object;
-using Game.Core.PropertyTree;
+﻿using Game.Core.PropertyTree;
 using Game.Core.Serializer.Obj;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Game.Core.Collection {
+namespace Game.Core.Objects {
     public class PDict<TK, TV> : SerializableDict<TK, TV>, IPropTreeNodeContainer, IDictionary<TK, TV>, IReadOnlyDictionary<TK, TV> where TK : notnull {
         public PropTreeNode PropTreeNode { get; } = new();
         public TV this[TK key] { get => Items[key]; set => _setValue(key, value); }
@@ -23,21 +22,33 @@ namespace Game.Core.Collection {
 
         private void _setValue(TK key, TV value) {
             if (Items.ContainsKey(key)) {
-                // 树结构维护.
+                // 数据结构修改.
                 Items[key] = value;
-                ObjectHelper.TryAttachTreeNode(value, this, key);
+                var oldItem = Items[key];
+                string name = key.ToString()!;
+
+
+                // 树结构维护.
+                if (value is IPropTreeNodeContainer v) {
+                    ((IPropTreeNodeContainer)oldItem!).PropTreeNode.Detach();
+                    v.PropTreeNode.SetParentAndName(PropTreeNode, name);
+                }
+
                 // post事件发送.
                 PropEventSetField<TV> e = new(value);
-                e.PropPathParts.Add(key.ToString()!);
+                e.PropPathParts.Add(name);
                 PropTreeNode.DispatchPropEvent(e);
             }
             Add(key, value);
         }
 
         public void Add(TK key, TV value) {
-            // 树结构维护.
+            // 数据结构修改.
             Items.Add(key, value);
-            ObjectHelper.TryAttachTreeNode(value, this, key);
+
+            // 树结构维护.
+            if (value is IPropTreeNodeContainer v) v.PropTreeNode.SetParentAndName(PropTreeNode, key.ToString()!);
+
             // post事件发送.
             PropEventDictAdd<TK, TV> e = new(key, value);
             PropTreeNode.DispatchPropEvent(e);
@@ -48,6 +59,11 @@ namespace Game.Core.Collection {
         }
 
         public void Clear() {
+            // 全员Detach.
+            if (typeof(TV).IsAssignableTo(typeof(IPropTreeNodeContainer))) {
+                foreach (IPropTreeNodeContainer? item in Items.Values) item!.PropTreeNode.Detach();
+            }
+
             Items.Clear();
             PropEventClear e = new();
             PropTreeNode.DispatchPropEvent(e);
@@ -70,12 +86,19 @@ namespace Game.Core.Collection {
         }
 
         public bool Remove(TK key) {
-            // 直接移除即可.
+            // 数据结构修改.
+            TV value;
+            Items.TryGetValue(key, out value!);
             bool ret = Items.Remove(key);
+            if (!ret) return false;
+
+            // 树结构维护.
+            if (value is IPropTreeNodeContainer v) v.PropTreeNode.Detach();
+
             // post事件发送.
             PropEventDictRemove<TK> e = new(key);
             PropTreeNode.DispatchPropEvent(e);
-            return ret;
+            return true;
         }
 
         public bool Remove(KeyValuePair<TK, TV> item) {
