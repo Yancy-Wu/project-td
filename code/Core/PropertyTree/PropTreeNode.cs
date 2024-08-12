@@ -1,27 +1,27 @@
 ﻿using System.Runtime.CompilerServices;
 
 namespace Game.Core.PropertyTree {
-    delegate void PropChangeHandler(IPropEventDefine propEvent);
+    public delegate void PropChangeHandler(IPropEventDefine propEvent);
 
-    internal interface IPropTreeNode {
-        public const char PROP_SEP = ',';
-        internal void DispatchPropEvent(IPropEventDefine propEvent);
+    internal interface IPropTreeNodeContainer {
+        internal PropTreeNode PropTreeNode { get; }
     }
 
     struct PropHandlerData {
+        public const char PROP_SEP = ',';
         public PropChangeHandler handler;
         public string[] listenPathParts;
     }
 
-    internal class PropTreeNode: IPropTreeNode {
+    public class PropTreeNode {
         private readonly List<PropHandlerData> Handlers = new();
         internal int NodeId { get; set; } = -1;
-        internal IPropTreeNode? Parent { get; set; }
+        internal IPropTreeNodeContainer? Parent { get; set; }
         internal string? Name { get; set; }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddPropHandler(string listenPath, PropChangeHandler handler) {
-            PropHandlerData handlerData = new(){ listenPathParts = listenPath.Split(IPropTreeNode.PROP_SEP), handler = handler };
+            PropHandlerData handlerData = new(){ listenPathParts = listenPath.Split(PropHandlerData.PROP_SEP), handler = handler };
             Handlers.Add(handlerData);
         }
 
@@ -33,7 +33,7 @@ namespace Game.Core.PropertyTree {
             }
             if (Parent == null) return;
             propEvent.PropPathParts.Add(Name!);
-            Parent.DispatchPropEvent(propEvent);
+            Parent.PropTreeNode.DispatchPropEvent(propEvent);
         }
     }
 }

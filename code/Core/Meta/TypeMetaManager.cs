@@ -1,5 +1,6 @@
 ﻿using Game.Core.Ec;
 using Game.Core.Serializer;
+using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,8 +11,12 @@ using System.Threading.Tasks;
 
 namespace Game.Core.Meta {
     public class TypeMetaManager {
+        private static readonly TypeMetaManager _Inst = new();
+        public static TypeMetaManager Inst { get { return _Inst; } }
         private readonly Dictionary<Type, TypeMeta> _clsToMeta = new();
         private readonly Dictionary<string, Type> _nameToCls = new();
+
+        private TypeMetaManager() { }
 
         public TypeMeta GetTypeMeta(Type type) {
             return _clsToMeta[type];

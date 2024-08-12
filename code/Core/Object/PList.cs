@@ -1,93 +1,95 @@
-﻿using Game.Core.PropertyTree;
+﻿using Game.Core.Object;
+using Game.Core.PropertyTree;
 using Game.Core.Serializer.Obj;
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Core.Collection {
-    public class PList<T> : SerializableList<T>, IList<T>, IList, IReadOnlyList<T>, IPropTreeNode {
-        public T this[int index] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        object? IList.this[int index] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public class PList<T> : SerializableList<T>, IList<T>, IReadOnlyList<T>, IPropTreeNodeContainer {
+        public PropTreeNode PropTreeNode { get; } = new();
+        public T this[int index] { get => Items[index]; set => _setItem(index, value); }
 
-        public int Count => throw new NotImplementedException();
+        public int Count => Items.Count;
 
-        public bool IsReadOnly => throw new NotImplementedException();
+        public bool IsReadOnly => false;
 
-        public bool IsFixedSize => throw new NotImplementedException();
-
-        public bool IsSynchronized => throw new NotImplementedException();
-
-        public object SyncRoot => throw new NotImplementedException();
-
-        public void Add(T item) {
-            throw new NotImplementedException();
+        private void _setItem(int index,  T item) {
+            // 树结构维护.
+            Items[index] = item;
+            ObjectHelper.TryAttachTreeNode(item, this, index);
+            // post事件发送.
+            PropEventSetField<T> e = new(item);
+            e.PropPathParts.Add(index.ToString());
+            PropTreeNode.DispatchPropEvent(e);
         }
 
-        public int Add(object? value) {
-            throw new NotImplementedException();
+        public void Add(T item) {
+            // 树结构维护.
+            Items.Add(item);
+            ObjectHelper.TryAttachTreeNode(item, this, Items.Count - 1);
+            // post事件发送.
+            PropEventListInsert<T> e = new(item);
+            PropTreeNode.DispatchPropEvent(e);
         }
 
         public void Clear() {
-            throw new NotImplementedException();
+            PropEventClear e = new();
+            PropTreeNode.DispatchPropEvent(e);
         }
 
         public bool Contains(T item) {
-            throw new NotImplementedException();
-        }
-
-        public bool Contains(object? value) {
-            throw new NotImplementedException();
+            return Items.Contains(item);
         }
 
         public void CopyTo(T[] array, int arrayIndex) {
-            throw new NotImplementedException();
-        }
-
-        public void CopyTo(Array array, int index) {
-            throw new NotImplementedException();
+            Items.CopyTo(array, arrayIndex);
         }
 
         public IEnumerator<T> GetEnumerator() {
-            throw new NotImplementedException();
+            return Items.GetEnumerator();
         }
 
         public int IndexOf(T item) {
-            throw new NotImplementedException();
-        }
-
-        public int IndexOf(object? value) {
-            throw new NotImplementedException();
+            return Items.IndexOf(item);
         }
 
         public void Insert(int index, T item) {
-            throw new NotImplementedException();
-        }
-
-        public void Insert(int index, object? value) {
-            throw new NotImplementedException();
+            // 树结构维护，重新修正索引.
+            Items.Insert(index, item);
+            ObjectHelper.TryAttachListTreeNodeBatch(Items, this, index);
+            // post事件发送.
+            PropEventListInsert<T> e = new(index, item);
+            PropTreeNode.DispatchPropEvent(e);
         }
 
         public bool Remove(T item) {
-            throw new NotImplementedException();
-        }
-
-        public void Remove(object? value) {
-            throw new NotImplementedException();
+            // Remove操作直接转RemoveAt.
+            int index = Items.IndexOf(item);
+            if (index == -1) return false;
+            RemoveAt(index);
+            return true;
         }
 
         public void RemoveAt(int index) {
-            throw new NotImplementedException();
+            // 树结构维护，重新修正索引.
+            Items.RemoveAt(index);
+            ObjectHelper.TryAttachListTreeNodeBatch(Items, this, index);
+            // post事件发送.
+            PropEventListRemove<T> e = new(index);
+            PropTreeNode.DispatchPropEvent(e);
         }
 
-        void IPropTreeNode.DispatchPropEvent(IPropEventDefine propEvent) {
-            throw new NotImplementedException();
+        public void AddRange(IEnumerable<T> collection) {
+            // 树结构维护，重新修正索引.
+            int startIndex = Items.Count;
+            Items.AddRange(collection);
+            ObjectHelper.TryAttachListTreeNodeBatch(Items, this, startIndex);
+            // post事件发送.
+            PropEventListInsert<T> e = new(Items.GetRange(startIndex, Items.Count - startIndex).ToArray());
+            PropTreeNode.DispatchPropEvent(e);
         }
 
         IEnumerator IEnumerable.GetEnumerator() {
-            throw new NotImplementedException();
+            return Items.GetEnumerator();
         }
     }
 }

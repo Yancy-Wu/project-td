@@ -1,18 +1,9 @@
 ﻿using Game.Core.PropertyTree;
 using Game.Core.Serializer.Obj;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Core.Object {
-    public class PObject : SerializableObject {
-    }
-
-    internal class PObjectProxy : IPropTreeNode {
-        void IPropTreeNode.DispatchPropEvent(IPropEventDefine propEvent) {
-            throw new NotImplementedException();
-        }
+    public class PObject : SerializableObject, IPropTreeNodeContainer {
+        // 这里保留一个空的类，用于IL Weaving.
+        public PropTreeNode PropTreeNode { get; } = new();
     }
 }

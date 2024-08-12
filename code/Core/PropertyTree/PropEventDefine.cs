@@ -22,25 +22,25 @@
         }
     }
 
+    public class PropEventClear : PropEventDefineBase { }
+
     public class PropEventDictAdd<TK, TV> : PropEventDefineBase {
-        public TV[] Values { get; private set; }
-        public TK[] Keys { get; private set; }
+        public TV Value { get; private set; }
+        public TK Key { get; private set; }
 
-        public PropEventDictAdd(TK[] keys, TV[] values) {
-            Keys = keys;
-            Values = values;
+        public PropEventDictAdd(TK key, TV value) {
+            Key = key;
+            Value = value;
         }
-
-        public PropEventDictAdd(TK key, TV value): this(new TK[1] { key }, new TV[1] { value }) {}
 
     }
 
     public class PropEventDictRemove<T> : PropEventDefineBase {
-        public T[] Keys { get; private set; }
-        public PropEventDictRemove(T[] keys) {
-            Keys = keys;
+        public T Key { get; private set; }
+
+        public PropEventDictRemove(T key) {
+            Key = key;
         }
-        public PropEventDictRemove(T key): this(new T[1] { key }) {}
     }
 
     public class PropEventListInsert<T> : PropEventDefineBase {
@@ -51,6 +51,7 @@
             Values = values;
         }
         public PropEventListInsert(T value) : this(-1, new T[1] { value }) { }
+        public PropEventListInsert(T[] values) : this(-1, values) { }
         public PropEventListInsert(int index, T value) : this(index, new T[1] { value }) { }
     }
 
