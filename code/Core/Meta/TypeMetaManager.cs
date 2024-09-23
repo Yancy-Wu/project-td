@@ -1,22 +1,25 @@
 ﻿using Game.Core.Ec;
 using Game.Core.Serializer;
-using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Game.Core.Meta {
     public class TypeMetaManager {
         private static readonly TypeMetaManager _Inst = new();
+
+        // 类型相关的信息.
         public static TypeMetaManager Inst { get { return _Inst; } }
         private readonly Dictionary<Type, TypeMeta> _clsToMeta = new();
         private readonly Dictionary<string, Type> _nameToCls = new();
 
         private TypeMetaManager() { }
+
+        internal int GetCompType<T>() where T : IComp {
+            return _clsToMeta[typeof(T)].CompType;
+        }
+
+        internal CompMeta GetCompMeta<T>() where T : IComp {
+            return _clsToMeta[typeof(T)].CompMeta;
+        }
 
         public TypeMeta GetTypeMeta(Type type) {
             return _clsToMeta[type];
@@ -35,7 +38,7 @@ namespace Game.Core.Meta {
         }
 
         private void _appendSerializeMeta(Type type, TypeMeta meta) {
-            foreach(PropertyInfo property in type.GetProperties()) {
+            foreach (PropertyInfo property in type.GetProperties()) {
                 GamePropertyAttribute? attr = property.GetCustomAttribute<GamePropertyAttribute>();
                 if (attr is null) continue;
                 IPropertySerializer serializer = SerializeUtils.CreatePropertySerializer(type, property.Name);

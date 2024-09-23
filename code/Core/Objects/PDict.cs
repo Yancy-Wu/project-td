@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Game.Core.Objects {
     public class PDict<TK, TV> : SerializableDict<TK, TV>, IPropTreeNodeContainer, IDictionary<TK, TV>, IReadOnlyDictionary<TK, TV> where TK : notnull {
-        public PropTreeNode PropTreeNode { get; } = new();
+        public PropTreeNode PropTreeNode { get; }
         public TV this[TK key] { get => Items[key]; set => _setValue(key, value); }
 
         public ICollection<TK> Keys => Items.Keys;
@@ -19,6 +19,8 @@ namespace Game.Core.Objects {
         IEnumerable<TK> IReadOnlyDictionary<TK, TV>.Keys => Items.Keys;
 
         IEnumerable<TV> IReadOnlyDictionary<TK, TV>.Values => Items.Values;
+
+        public PDict() { PropTreeNode = new(this); }
 
         private void _setValue(TK key, TV value) {
             if (Items.ContainsKey(key)) {

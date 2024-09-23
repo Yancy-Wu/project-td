@@ -4,12 +4,15 @@ using System.Collections;
 
 namespace Game.Core.Objects {
     public class PList<T> : SerializableList<T>, IList<T>, IReadOnlyList<T>, IPropTreeNodeContainer {
-        public PropTreeNode PropTreeNode { get; } = new();
+        public PropTreeNode PropTreeNode { get; }
         public T this[int index] { get => Items[index]; set => _setItem(index, value); }
 
         public int Count => Items.Count;
 
         public bool IsReadOnly => false;
+
+
+        public PList() { PropTreeNode = new(this); }
 
         private void _setItem(int index,  T item) {
             // 数据结构修改.

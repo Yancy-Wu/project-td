@@ -1,4 +1,5 @@
 ﻿using Game.Core.Meta;
+using Game.Core.Objects;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -20,12 +21,11 @@ namespace Game.Core.Ec {
     /// <para> Entity是IComp组合，其由EntityManager统一管理，并给外界提供通过IComp接口获取其真实Comp的方法 </para>
     /// <para> Entity的组件不是随意可添加的，在Running之后便不可添加删除，仅可设置组件的激活状态 </para>
     /// </summary>
-    public class Entity {
-        private string? _id;
-        public string? Id { get { return _id; } }
-        private readonly Dictionary<int, IComp> _comps = new();
-        private readonly Dictionary<int, IComp> _activeComps = new();
-        private EntityState _state = EntityState.INIT;
+    public class Entity: PObject {
+        [GameProperty] public string Id { get; private set; } = "";
+        [GameProperty] private CompDict _comps { get; set; } = new();
+        [GameProperty] private CompDict _activeComps { get; set; } = new();
+        [GameProperty] private EntityState _state { get; set; } = EntityState.INIT;
 
         // Env是Entity所在的上下文环境，比如其所属的EntityManager等等.
         private Env? _env;
@@ -43,7 +43,7 @@ namespace Game.Core.Ec {
         internal void AttachToEnv(Env env, string? id = null, bool addToManager = true) {
             Debug.Assert(_state == EntityState.INIT && _env is not null, "AttachToEnv can only apply to INIT entity, and cur _env must null");
             _env = env;
-            _id = id is not null ? id : IdManager.GenUUID();
+            Id = id is not null ? id : IdManager.GenUUID();
             if (addToManager) env.entityManager.AddEntity(this);
             _state = EntityState.ATTACHED;
         }
@@ -86,7 +86,7 @@ namespace Game.Core.Ec {
             _comps.Clear();
             _activeComps.Clear();
             _env = null;
-            _id = null;
+            Id = "";
         }
 
         // 给Entity添加一个Comp.

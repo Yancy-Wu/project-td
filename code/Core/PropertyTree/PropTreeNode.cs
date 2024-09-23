@@ -6,12 +6,12 @@ namespace Game.Core.PropertyTree {
 
     internal interface IPropTreeNodeManager {
         internal bool IsPassive();
-        internal int RequestAllocNodeId();
-        internal void RequestSyncNodeId(int nodeId);
+        internal int RequestAllocNodeId(IPropTreeNodeContainer node);
+        internal void RequestSyncNodeId(int nodeId, IPropTreeNodeContainer node);
         internal void RequestFreeNodeId(int nodeId);
     }
 
-    internal interface IPropTreeNodeContainer {
+    public interface IPropTreeNodeContainer {
         internal PropTreeNode PropTreeNode { get; }
     }
 
@@ -26,8 +26,13 @@ namespace Game.Core.PropertyTree {
         private readonly HashSet<PropTreeNode> Children = new();
         internal int NodeId { get; private set; } = -1;
         internal PropTreeNode? Parent { get; private set; }
+        internal IPropTreeNodeContainer Owner {  get; private set; }
         internal IPropTreeNodeManager? Manager { get; private set; }
         internal string? Name { get; set; }
+
+       public PropTreeNode(IPropTreeNodeContainer owner) {
+            Owner = owner;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AddPropHandler(string listenPath, PropChangeHandler handler) {
@@ -60,10 +65,10 @@ namespace Game.Core.PropertyTree {
 
             // 拉取，或者向Mgr同步自己的节点ID.
             if(manager != null) {
-                if (!manager.IsPassive()) NodeId = manager.RequestAllocNodeId();
+                if (!manager.IsPassive()) NodeId = manager.RequestAllocNodeId(this.Owner);
                 else {
                     Debug.Assert(NodeId != -1, "Sync To Node Mgr Error: Object NodeId is -1.");
-                    manager.RequestSyncNodeId(NodeId);
+                    manager.RequestSyncNodeId(NodeId, this.Owner);
                 }
             }
 

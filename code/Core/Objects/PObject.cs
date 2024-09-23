@@ -3,9 +3,11 @@ using Game.Core.Serializer.Obj;
 
 namespace Game.Core.Objects {
     public class PObject : SerializableObject, IPropTreeNodeContainer {
-        public PropTreeNode PropTreeNode { get; } = new();
+        public PropTreeNode PropTreeNode { get; }
 
-        internal void AfterSetProp<T>(string name, T item, T oldItem) {
+        public PObject() { PropTreeNode = new(this); }
+
+        public void AfterSetProp<T>(string name, T item, T oldItem) {
             // 用于IL Weaving，属性事件变更后的处理内容.
             // 树结构维护.
             if (typeof(T).IsAssignableTo(typeof(IPropTreeNodeContainer))) {

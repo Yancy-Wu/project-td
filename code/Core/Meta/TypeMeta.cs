@@ -16,7 +16,7 @@ namespace Game.Core.Meta {
 
     public class TypeMeta {
         public List<IPropertySerializer> SerializeProperties { get; } = new();
-        public CompMeta? CompMeta { get; set; }
+        public CompMeta CompMeta { get; set; }
         public int CompType = -1;
     }
 }
